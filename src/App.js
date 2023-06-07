@@ -36,13 +36,13 @@ function App() {
         </div>
       ):
       (<div className='room-details'>
-        <label className='header'>enter room name</label>
+        <label className='header1'>enter room name</label>
         <input className='room-input' ref={inputref} ></input>
         <button className='enter-button' onClick={()=>setRoom(inputref.current.value)}>enter</button>
       </div>)
       }
       <div>
-        <button onClick={signUserOut}>sign Out</button>
+        <button className='signout-button' onClick={signUserOut}>sign Out</button>
       </div>
     </>
   )
