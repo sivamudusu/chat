@@ -14,6 +14,7 @@ function App() {
   const [room,setRoom] = useState(null);
   const inputref = useRef(null);
 
+
   const signUserOut = async()=>{
     await signOut(auth);
     cookie.remove("auth-token");
@@ -24,7 +25,7 @@ function App() {
   if(!isAuth){
     return(
       <div>
-        <Auth setIsAuth = {setIsAuth}/>
+        <Auth setIsAuth = {setIsAuth} />
       </div>
      )
   }
@@ -32,18 +33,20 @@ function App() {
     <>
       {room?(
         <div>
-          <Chat room = {room}/>
+          <Chat room = {room} handleSignout = {signUserOut}/>
         </div>
       ):
       (<div className='room-details'>
-        <label className='header1'>enter room name</label>
+        <label className='header1'>Please enter your Key </label>
         <input className='room-input' ref={inputref} ></input>
         <button className='enter-button' onClick={()=>setRoom(inputref.current.value)}>enter</button>
-      </div>)
-      }
-      <div>
-        <button className='signout-button' onClick={signUserOut}>sign Out</button>
+        <div>
+        <button className='app-signout-button' onClick={signUserOut}>sign Out</button>
       </div>
+      </div>)
+      
+      }
+      
     </>
   )
 

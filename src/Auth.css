@@ -1,6 +1,27 @@
-.auth-page{
 
+.auth-page{
   display: flex;
   flex-direction: column;
+  margin: 10% 20%;
+  border: 1px solid;
+  color:black;
+  background-color: white;
+  align-items: center;
+  padding-bottom: 20px;
+  
+  
 
+}
+.auth-Sign-in{
+  position: relative;
+  left: auto;
+  width: 70px;
+  height: 70px;
+  border-radius: 40px;
+  background-color: rgb(184, 169, 198);
+}
+.sign-in-card{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

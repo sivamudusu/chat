@@ -1,0 +1,26 @@
+.room-details{
+    display: flex;
+    flex-direction: column;
+    margin: 10% 20%;
+    background-color: white;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 1px solid;
+}
+.enter-button{
+    margin-top: 10px;
+    border-radius: 10px;
+    height: 30px;
+    width: 80px;
+    background-color: rgb(60, 118, 55);
+    border: none;
+}
+.app-signout-button{
+    margin-top: 40px;
+    border-radius: 10px;
+    height: 30px;
+    width: 80px;
+    background-color: rgb(254, 112, 112);
+    border: none;
+}
