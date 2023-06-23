@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import{db,auth}from "./firebase-config";
 import "./Chat.css";
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where,Timestamp, deleteDoc, doc, setDoc, updateDoc, and} from "firebase/firestore";
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where,deleteDoc, doc, updateDoc, getDoc, and} from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable }from "firebase/storage";
 
 
@@ -15,8 +15,13 @@ export const Chat = (props)=>{
     const messagesRef = useRef(null);
     const[image,setImage] = useState(null);
     const storage = getStorage();
-    
+    const userRef = collection(db,"users");
+    const [users,setUsers] = useState(null);
+    const [loggedIn,setLoggedIn] = useState(true);
 
+
+    
+ 
 
     useEffect(()=>{
         const queryMessages = query(messageRef,where("room","==",room),orderBy("createdAt"));
@@ -27,12 +32,34 @@ export const Chat = (props)=>{
                     ...doc.data(),id:doc.id
                 });
             })
-            setMessages(messages);
+             setMessages(messages);
+
+            const docref = doc(db,"users",auth.currentUser.displayName);
+            const docSnap =  getDoc(docref);
+
+            updateDoc(docref,{
+                room:room,
+                logInTime:serverTimestamp(),
+                isOnline:true
+            })
+
 
             if (messages.length > 0) {
                 messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
             }
 
+        });
+        return ()=>unsubscribe();
+        
+
+    },[]);
+
+    useEffect(()=>{
+        const queryUsers = query(userRef,where("room","==",room),where("name","!=",auth.currentUser.displayName));
+        const unsubscribe = onSnapshot(queryUsers,(user)=>{
+            user.forEach(user=>{
+                setUsers(user.data());
+            })
         });
         return ()=>unsubscribe();
 
@@ -98,18 +125,79 @@ export const Chat = (props)=>{
             deleteDoc(doc(db,"messages",message.id));
         })
     }
+    const checkForInactivity = ()=>{
+        const expireTime = localStorage.getItem("expireTime");
 
+        if(loggedIn && expireTime<Date.now()){
+            console.log("log out");
+            const docref = doc(db,"users",auth.currentUser.displayName);
+            updateDoc(docref,{
+                logInTime:serverTimestamp(),
+                isOnline:false
+            })
+            setLoggedIn(false);
+            
+            
+            
+        }
+    }
     
- 
+    const updateExpire = ()=>{
+        const expireTime = Date.now()+20000
+        localStorage.setItem("expireTime",expireTime);
+        
+    }
+
+    useEffect(()=>{
+        const interval = setInterval(()=>{
+            checkForInactivity();
+        },5000);
+        return ()=> clearInterval(interval);
+    },[]);
+
+    useEffect(()=>{
+        updateExpire();
+
+        window.addEventListener("click",updateExpire);
+        window.addEventListener("scroll",updateExpire);
+        window.addEventListener("keypress",updateExpire);
+        window.addEventListener("mousemove",updateExpire);
+
+
+        return ()=>{
+            window.addEventListener("click",updateExpire);
+            window.addEventListener("scroll",updateExpire);
+            window.addEventListener("keypress",updateExpire);
+            window.addEventListener("mousemove",updateExpire);
+
+        }
+    },[]);
+    
 
     return(
         <div className="chat-app">
             <div className="header">
+                {users?(
+                    <div className="user-details">
+                        <div className="user-dp">
+                            <img src={users.photoURL} alt="user profile"/>
+                            
+                            
+                            
+                        </div>
+                        <div className="onlineStatus">
+                        <p>{users.isOnline?"online":"last seen:"+users.logInTime.toDate().toString().substring(4,10)+users.logInTime.toDate().toString().substring(15,21)}</p>
+                        </div>
+                    </div>
+                )
+                :
                 <div className="user-details">
                     <div className="user-dp">
-                        <h3>DP</h3>
+                        <h3>Dp</h3>
                     </div>
                 </div>
+                }
+                
                 <div>
                     <button onClick={deleteChat} className="delete-button">delete</button>
                     <button onClick={handleSignout}  className="inchat-signout-button">sign Out</button>
@@ -142,7 +230,7 @@ export const Chat = (props)=>{
             <form onSubmit={handleSubmit} className="new-message-form">
                 <input className="new-message-input" onChange={(e)=>setNewMessages(e.target.value)} value={newMessages} placeholder="type your message here"/>
                 {/* <input onChange={(e)=>setImage(e.target.files[0])} type="file"></input> */}
-                <button className="send-button" type="submit">send</button>
+                <button className="send-button" type="submit"> ❤️ </button>
             </form>
         </div>
     )
