@@ -13,7 +13,7 @@ body{
   
   }
   .header {
-    background-color: rgb(1, 1, 91);
+    background-color: rgb(4, 57, 38);
     color: white;
     width: 100%;
     text-align: left;
@@ -56,16 +56,7 @@ body{
     margin-top: 20px;
     margin-left: 10px;
   }
-  .inchat-signout-button{
-    margin: 10px 10px 0 0;
-    border-radius: 10px;
-    height: 30px;
-    width: 80px;
-    background-color: rgb(254, 112, 112);
-    color: black;
-    border: none;
-    
-  }
+
   
   .messages {
     display: flex;
@@ -78,6 +69,7 @@ body{
     overflow-y: auto;
     padding-top: 100px;
     padding-bottom: 30px;
+    color: white;
     
   }
   
@@ -87,6 +79,7 @@ body{
     background-color: darkgrey;
     border-radius: 10px;
     padding-left: 10px;
+    padding-top: 10px;
   }
   
  
@@ -121,7 +114,7 @@ body{
   .send-button {
     border: none;
     outline: none;
-    background: #3b5998;
+    background: rgb(4, 57, 38);
     color: #fff;
     font-size: 16px;
     font-weight: bold;
@@ -136,13 +129,31 @@ body{
     padding-top: 15px;
     padding-right: 10px;
   }
-  .delete-button{
-    background-color: rgb(252, 215, 5);
-    margin: 10px 10px 0 0;
-    border-radius: 10px;
-    height: 30px;
-    width: 80px;
-    color: black;
-    border: none;
+
+  .toggle-menu{
+    margin-top: 10px;
+    margin-right: 20px;
   }
+  .messages>.toggle-menu-ms{
+    flex-direction: column;
+    position: fixed;
+    right: 20px;
+    top: 40px;
+    background-color: gray;
+    padding: 10px;
+    border-radius: 10px 0px 10px 10px;
+
+  }
+  .messages>.toggle-menu-ms>.delete-button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding-bottom: 10px;
+  }
+  .messages>.toggle-menu-ms>.inchat-signout-button{
+    background-color: transparent;
+    border: none;
+    color: white;
+  }
+
   

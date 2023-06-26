@@ -18,6 +18,7 @@ export const Chat = (props)=>{
     const userRef = collection(db,"users");
     const [users,setUsers] = useState(null);
     const [loggedIn,setLoggedIn] = useState(true);
+    const [isElementVisible,setIsElementVisible] = useState(false);
 
 
     
@@ -125,6 +126,14 @@ export const Chat = (props)=>{
             deleteDoc(doc(db,"messages",message.id));
         })
     }
+    const deleteSingle = (id,user,curUser)=>{
+        if(user===curUser){
+            deleteDoc(doc(db,"messages",id));
+        }
+    }
+    const handleToggleMenu = ()=>{
+        setIsElementVisible(!isElementVisible);
+    }
     const checkForInactivity = ()=>{
         const expireTime = localStorage.getItem("expireTime");
 
@@ -198,16 +207,21 @@ export const Chat = (props)=>{
                 </div>
                 }
                 
-                <div>
-                    <button onClick={deleteChat} className="delete-button">delete</button>
-                    <button onClick={handleSignout}  className="inchat-signout-button">sign Out</button>
+                <div onClick={handleToggleMenu} className="toggle-menu">
+                    ...
+                    
                 </div>
+                
                     
             </div>
             <div className="messages">
+                    <div className="toggle-menu-ms" style={{display : isElementVisible?"flex":"none"}}>
+                       <button onClick={deleteChat} className="delete-button">delete for all</button>
+                       <button onClick={handleSignout}  className="inchat-signout-button">sign Out</button>
+                    </div>
                 {messages.map((message)=>(
-                    <div style={message.user === auth.currentUser.displayName?{alignSelf:"flex-end"}:{alignSelf:"flex-start"}}>
-                        <div style={message.user === auth.currentUser.displayName ?{backgroundColor:"lightblue",borderRadius:"10px 15px 0px 15px"}:{backgroundColor:"lightgreen",borderRadius:"15px 10px 15px 0px"}} className="message" key={message.id}>
+                    <div   style={message.user === auth.currentUser.displayName?{alignSelf:"flex-end"}:{alignSelf:"flex-start"}}>
+                        <div onClick={()=>{deleteSingle(message.id,message.user,auth.currentUser.displayName)}} style={message.user === auth.currentUser.displayName ?{backgroundColor:"rgb(4,57,38)",borderRadius:"10px 15px 0px 15px"}:{backgroundColor:"gray",borderRadius:"15px 10px 15px 0px"}} className="message" key={message.id}>
                         
                          <div className="text">{message.text}</div>
                          <div className="image">
@@ -216,6 +230,10 @@ export const Chat = (props)=>{
 
                         
                         <p className="time">{message.createdAt? message.createdAt.toDate().toString().substring(4,21):""}</p>
+                        
+
+
+                        
                         </div>
                         <div>
                             
