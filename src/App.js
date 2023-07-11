@@ -21,7 +21,7 @@ function App() {
     const docref = doc(db,"users",auth.currentUser.displayName);
     const docSnap =  getDoc(docref);
 
-    updateDoc(docref,{
+    await updateDoc(docref,{
         iogInTime:serverTimestamp(),        
         isOnline:false
     })

@@ -27,6 +27,7 @@ export const Auth =(props)=>{
                     uid:googleUser.user.uid,
                     name : googleUser.user.displayName,
                     logInTime: serverTimestamp(),
+                    lastseen:"",
                     email:googleUser.user.email,
                     phone:googleUser.user.phoneNumber,
                     isVerified:googleUser.user.emailVerified,

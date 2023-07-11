@@ -3,6 +3,10 @@ import{db,auth}from "./firebase-config";
 import "./Chat.css";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where,deleteDoc, doc, updateDoc, getDoc, and} from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable }from "firebase/storage";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEnvelope,faPaperPlane,faImage } from '@fortawesome/free-solid-svg-icons'
+
+
 
 
 
@@ -19,6 +23,7 @@ export const Chat = (props)=>{
     const [users,setUsers] = useState(null);
     const [loggedIn,setLoggedIn] = useState(true);
     const [isElementVisible,setIsElementVisible] = useState(false);
+
 
 
     
@@ -71,38 +76,32 @@ export const Chat = (props)=>{
     },[messages])
 
 
+
     const handleSubmit = async(e)=>{
         e.preventDefault();
         if(newMessages ==="" && image===null){
             return;
         }
         if(newMessages === "" && image!==null){
-            const storageRef = ref(storage,auth.currentUser.displayName);
+            const imageFileName = `${Date.now()}_${image.name}`;
+            const storageRef = ref(storage,imageFileName);
             const uploadTask = uploadBytesResumable(storageRef,image);
-            uploadTask.on(
-            (error) => {
-              console.error(error);
-            }, 
-            () => {
-              // Handle successful uploads on complete
-              // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-              getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
-                await addDoc(messageRef,{
-                    text:newMessages,
-                    createdAt:serverTimestamp(),
-                    user: auth.currentUser.displayName,
-                    img:downloadURL,
-                    room
-        
-        
-        
+            try {
+                await uploadTask;
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          
+                await addDoc(messageRef, {
+                  text: newMessages,
+                  createdAt: serverTimestamp(),
+                  user: auth.currentUser.displayName,
+                  img: downloadURL,
+                  room
                 });
                 setNewMessages("");
                 setImage(null);
-                return;
-              });
-            }
-          );
+              } catch (error) {
+                console.error(error);
+              }
 
         }else{
             await addDoc(messageRef,{
@@ -121,6 +120,15 @@ export const Chat = (props)=>{
         
 
     }
+    const handleImage = (e)=>{
+        const selectedFile = e.target.files[0];
+
+        if(selectedFile){
+            setImage(selectedFile);
+        }else{
+            setImage(null);
+        }
+    }
     const deleteChat = ()=>{
         messages.forEach((message)=>{
             deleteDoc(doc(db,"messages",message.id));
@@ -134,6 +142,7 @@ export const Chat = (props)=>{
     const handleToggleMenu = ()=>{
         setIsElementVisible(!isElementVisible);
     }
+    
     const checkForInactivity = ()=>{
         const expireTime = localStorage.getItem("expireTime");
 
@@ -141,8 +150,8 @@ export const Chat = (props)=>{
             console.log("log out");
             const docref = doc(db,"users",auth.currentUser.displayName);
             updateDoc(docref,{
-                logInTime:serverTimestamp(),
-                isOnline:false
+                logInTime: serverTimestamp(),
+                isOnline:false,
             })
             setLoggedIn(false);
             
@@ -160,6 +169,7 @@ export const Chat = (props)=>{
     useEffect(()=>{
         const interval = setInterval(()=>{
             checkForInactivity();
+            
         },5000);
         return ()=> clearInterval(interval);
     },[]);
@@ -215,21 +225,21 @@ export const Chat = (props)=>{
                     
             </div>
             <div className="messages">
-                    <div className="toggle-menu-ms" style={{display : isElementVisible?"flex":"none"}}>
+                    <div className="toggle-menu-ms" style={{display:isElementVisible?"flex":"none"}}>
                        <button onClick={deleteChat} className="delete-button">delete for all</button>
                        <button onClick={handleSignout}  className="inchat-signout-button">sign Out</button>
                     </div>
                 {messages.map((message)=>(
                     <div   style={message.user === auth.currentUser.displayName?{alignSelf:"flex-end"}:{alignSelf:"flex-start"}}>
-                        <div onClick={()=>{deleteSingle(message.id,message.user,auth.currentUser.displayName)}} style={message.user === auth.currentUser.displayName ?{backgroundColor:"rgb(4,57,38)",borderRadius:"10px 15px 0px 15px"}:{backgroundColor:"gray",borderRadius:"15px 10px 15px 0px"}} className="message" key={message.id}>
-                        
-                         <div className="text">{message.text}</div>
+                        <div  onClick={()=>{deleteSingle(message.id,message.user,auth.currentUser.displayName)}} style={message.user === auth.currentUser.displayName ?{backgroundColor:"rgb(4,57,38)",borderRadius:"10px 15px 0px 15px"}:{backgroundColor:"#454242",borderRadius:"15px 10px 15px 0px"}} className="message" key={message.id}>
+                        {/* onClick={()=>{deleteSingle(message.id,message.user,auth.currentUser.displayName)}} */}
+                         <div  className="text">{message.text}</div>
                          <div className="image">
-                            {message.img&&<img src={message.img}/>}
+                            {message.img&&<img style={{maxHeight:"300px",maxWidth:"300px"}} src={message.img}/>}
                          </div>
 
                         
-                        <p className="time">{message.createdAt? message.createdAt.toDate().toString().substring(4,21):""}</p>
+                        <p  className="time">{message.createdAt? message.createdAt.toDate().toString().substring(4,21):""}</p>
                         
 
 
@@ -247,8 +257,9 @@ export const Chat = (props)=>{
             </div>
             <form onSubmit={handleSubmit} className="new-message-form">
                 <input className="new-message-input" onChange={(e)=>setNewMessages(e.target.value)} value={newMessages} placeholder="type your message here"/>
-                {/* <input onChange={(e)=>setImage(e.target.files[0])} type="file"></input> */}
-                <button className="send-button" type="submit"> ❤️ </button>
+                <input style={{display:"none"}} id="file" onChange={handleImage}  type="file"></input>
+                <button className="send-button" type="submit"><FontAwesomeIcon icon={faPaperPlane} /></button>
+                <label className="chooseFile" htmlFor="file"><FontAwesomeIcon icon={faImage}/></label>
             </form>
         </div>
     )
