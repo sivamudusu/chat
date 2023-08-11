@@ -16,13 +16,26 @@ function App() {
   const [room,setRoom] = useState(null);
   const inputref = useRef(null);
 
+  
+  const month = new Date().getMonth();
+    const date = new Date().getDate();
+    const day = new Date().getDay();
+    const hours = new Date().getHours();
+    const hours12 = hours>=13?hours%12 : hours;
+    const min = new Date().getMinutes();
+    const sec = new Date().getSeconds();
+    const ampm = hours>=13?"PM":"AM";
+
+
+  
+
 
   const signUserOut = async()=>{
     const docref = doc(db,"users",auth.currentUser.displayName);
     const docSnap =  getDoc(docref);
 
     await updateDoc(docref,{
-        iogInTime:serverTimestamp(),        
+        logInTime:date+"/"+month+" "+hours12+":"+min+ampm,      
         isOnline:false
     })
 
@@ -45,7 +58,7 @@ function App() {
     <>
       {room?(
         <div>
-          <Chat room = {room} handleSignout = {signUserOut}/>
+          <Chat auth = {isAuth} room = {room} handleSignout = {signUserOut}/>
         </div>
       ):
       (<div class="form">
